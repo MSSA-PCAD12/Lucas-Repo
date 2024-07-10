@@ -4,3 +4,4 @@
 [] show branches
 show push
 show pull
+New
