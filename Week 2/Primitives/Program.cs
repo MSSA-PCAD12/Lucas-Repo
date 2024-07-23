@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace Primitives
 {
@@ -100,8 +101,20 @@ namespace Primitives
             bool check = true;
             Console.WriteLine(check ? "Checked" : "Not checked");  // output: Checked
 
-            
-           
+            //string
+            string s = "Hello";
+            s.IndexOf('o'); //4
+            s.IndexOf("ll"); //2
+            s.IndexOf("h", StringComparison); //0
+
+            string[] words = { "There", "are", "examples", "of", "great", "teams"};
+
+            StringBuilder sb = new StringBuilder();
+            foreach (string word in words)
+            {
+                sb.Append(word).Append(" ");
+            }
+            string sentence3 = sb.ToString().Trim();
 
         }
     }
