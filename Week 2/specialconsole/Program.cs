@@ -1,35 +1,68 @@
-﻿using System;
-using Spectre.Console;
-using Spectre.Console.Cli;
+﻿using Spectre.Console;
+using System.Text;
 
-namespace SpectreConsoleDemo
+namespace LearnSpectreUI
 {
-    class Program
+    internal class Program
     {
+        //declare these emoji at class level so all static method can access them
+        //if declared in Main, other methods such as GetComputerHand and CompareHands won't see them
+        //becaus stack
+        static string rock = "✊";
+        static string scissor = "✌";
+        static string paper = "✋";
+
+        static FileInfo logFile =
+            new FileInfo(
+                 System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+                + Path.PathSeparator + "rpslog.txt");
         static void Main(string[] args)
         {
-            // Using Spectre.Console to create a simple table
-            var table = new Table();
-            table.AddColumn("Name");
-            table.AddColumn("Age");
-            table.AddRow("Alice", "30");
-            table.AddRow("Bob", "25");
-            table.AddRow("Charlie", "35");
+            if (!logFile.Exists) { logFile.CreateText(); } //ensure our text will exist
 
-            AnsiConsole.Write(table);
 
-            // Using Spectre.Console.Cli for a command-line interface
-            var app = new CommandApp<MyCommand>();
-            app.Run(args);
+            Console.OutputEncoding = Encoding.UTF8;//turns on emoji support
+            do
+            {
+                var myHand = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                 .Title("Pick your hand!")
+                 .PageSize(10)
+                 .AddChoices(new[] {
+                    rock,paper,scissor
+                 }));
+                //Use a seperate static method to generate a random computer hand, reduce Main clutter
+                string computerHand = GetComputerHand();
+
+                //Use a seperate static method to compare hands, reduce Main clutter
+                string whoWins = CompareHand(myHand, computerHand);
+
+                // Echo the hand back to the terminal
+                AnsiConsole.WriteLine($"You hand: {myHand} vs {computerHand} ");
+
+                // Show who wins with Markup
+                AnsiConsole.MarkupInterpolated($"[bold yellow on blue]{whoWins}[/]\n");
+
+            } while (AnsiConsole.Confirm("Pick Again?")); //loop to start another game with Confirm Prompt
         }
-    }
 
-    public class MyCommand : Command<CommandSettings>
-    {
-        public override int Execute(CommandContext context, CommandSettings settings)
+        private static string CompareHand(string myHand, string computerHand)
         {
-            AnsiConsole.MarkupLine("[green]Hello, Spectre.Console![/]");
-            return 0;
+            //logic to determin winner, tie condition
+            if (myHand == computerHand) { return "Its a tie."; }
+            //win conditions
+            if (myHand == rock && computerHand == scissor) { return "You win"; }
+            if (myHand == scissor && computerHand == paper) { return "You win"; }
+            if (myHand == paper && computerHand == rock) { return "You win"; }
+            //if none of the three conditions is true, then the final return is computer wins
+            return "Computer wins";
+        }
+
+        private static string GetComputerHand()
+        {
+            string[] hands = { rock, paper, scissor };
+            Random rnd = new Random();//create a new instance to generate random number
+            return hands[rnd.Next(hands.Length)]; // pick a random hand
         }
     }
 }
